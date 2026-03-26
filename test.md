@@ -25,7 +25,7 @@
 
 - Create availability/condition/mycondition/tests/behat/step_definitions/mycondition_steps.php (optional):
   <?php
-  namespace Behat\availability_condition_mycondition\test\step_definitions;
+  namespace Behat\availability_condition_mycondition	est\step_definitions;
 
   use Behat\Gherkin\Node\TableNode;
   use Behat\Mink\Exception\ElementNotFoundException;
