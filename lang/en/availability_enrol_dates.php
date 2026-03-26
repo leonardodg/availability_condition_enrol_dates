@@ -29,6 +29,9 @@ $string['description'] = 'Allow only students who belong to a specific period in
 $string['pluginname'] = 'Enrol Dates';
 $string['title'] = 'Enrol Dates';
 
+$string['select_direction'] = '(Select Direction)';
+$string['select_timevaluecheck'] = '(Select Time)';
+$string['select_timeperiod'] = '(Select Period)';
 $string['before'] = 'before';
 $string['after'] = 'after';
 $string['coursetimestart'] = 'course start date';
@@ -50,4 +53,7 @@ $string['setting'] = 'Default Value';
 $string['settingdesc'] = 'Default value for the condition';
 $string['edithelp'] = 'Edit my condition';
 $string['error_invalid_timenumber'] = 'Invalid time number';
+$string['error_missing_direction'] = 'Please select a direction';
+$string['error_missing_timevaluecheck'] = 'Please select a time value';
+$string['error_missing_timeperiod'] = 'Please select a time period';
 $string['title'] = 'Enrol Dates';

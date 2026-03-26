@@ -35,6 +35,9 @@ class frontend extends \core_availability\frontend {
             'title',
             'before',
             'after',
+            'select_direction',
+            'select_timevaluecheck',
+            'select_timeperiod',
             'coursetimestart',
             'coursetimeend',
             'enroltimestart',
@@ -42,7 +45,10 @@ class frontend extends \core_availability\frontend {
             'hours',
             'days',
             'months',
-            'error_invalid_timenumber'
+            'error_invalid_timenumber',
+            'error_missing_direction',
+            'error_missing_timevaluecheck',
+            'error_missing_timeperiod'
         );
     }
 

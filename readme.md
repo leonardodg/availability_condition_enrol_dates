@@ -1,5 +1,10 @@
 
 # 🚀 Plugin Availability Condition: Enrol Dates - by LeoDG - Moodle 4.5.1+
+
+<p align="center"><a href="https://moodle.org" target="_blank" title="Moodle Website">
+  <img src="https://raw.githubusercontent.com/moodle/moodle/main/.github/moodlelogo.svg" alt="The Moodle Logo">
+</a></p>
+
 ## Description new Plugin to implemment
 
 
@@ -55,11 +60,11 @@ Database values:
 
 
 ## Prerequisites
-- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [Moodle](https://moodledev.io/docs/4.5)
+- [Git][1]
+- [Moodle][2]
 
 ### Plugin Moodle DOC
- - [Moodle Availability](https://moodledev.io/docs/4.5/apis/plugintypes/availability)
+ - [Moodle Availability][3]
 
 
 ## DEVELOPERS
@@ -146,10 +151,19 @@ php admin/cli/purge_caches.php
  This project is licensed under version 3 of the GNU General Public License *(GPL v3+)* - see the [LICENSE](LICENSE) file for details. The same licence of Moodle is provided freely as open source software.
 
  ## 📮 Contact
-LeonardoDG - [@le0dg](https://www.linkedin.com/in/le0dg)
+LeonardoDG - [@le0dg][4]
 
-Github Repository Link: [https://github.com/leonardodg/website.git](https://github.com/leonardodg/website.git)
+Github Repository Link: [github/leonardodg][5]
 
-GH-Pages Link: [https://leonardodg.github.io/website](https://leonardodg.github.io/website)
+Website Link: [leodg.dev][6]
 
-Website Link: [https://leodg.dev](https://leodg.dev)
+
+
+
+
+[1]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[2]: https://moodledev.io/docs/4.5
+[3]: https://moodledev.io/docs/4.5/apis/plugintypes/availability
+[4]: https://www.linkedin.com/in/le0dg
+[5]: https://github.com/leonardodg/availability_condition_enrol_dates.git
+[6]: https://leodg.dev
