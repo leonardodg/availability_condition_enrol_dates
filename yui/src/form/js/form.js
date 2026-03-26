@@ -24,15 +24,15 @@ M.availability_enrol_dates.form.updateDirectionOptions = function(node) {
     var beforeOption = directionSelect.one('option[value=before]');
     var afterOption = directionSelect.one('option[value=after]');
 
-    if ( timevaluecheck === 'coursetimestart' || timevaluecheck === 'enroltimestart' ) {
+    if (timevaluecheck === 'coursetimestart' || timevaluecheck === 'enroltimestart') {
         beforeOption.set('disabled', true);
         afterOption.set('disabled', false);
         directionSelect.set('value', 'after');
-    } else if ( timevaluecheck === 'coursetimeend' || timevaluecheck === 'enroltimeend' ) {
+    } else if (timevaluecheck === 'coursetimeend' || timevaluecheck === 'enroltimeend') {
         beforeOption.set('disabled', false);
         afterOption.set('disabled', true);
         directionSelect.set('value', 'before');
-    }else{
+    } else {
          beforeOption.set('disabled', false);
         afterOption.set('disabled', false);
         directionSelect.set('value', '');
