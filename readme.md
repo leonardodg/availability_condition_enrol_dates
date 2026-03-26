@@ -143,10 +143,13 @@ php admin/cli/purge_caches.php
 
 
  ## 📄 License
- This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+ This project is licensed under version 3 of the GNU General Public License *(GPL v3+)* - see the [LICENSE](LICENSE) file for details. The same licence of Moodle is provided freely as open source software.
 
  ## 📮 Contact
 LeonardoDG - [@le0dg](https://www.linkedin.com/in/le0dg)
+
 Github Repository Link: [https://github.com/leonardodg/website.git](https://github.com/leonardodg/website.git)
+
 GH-Pages Link: [https://leonardodg.github.io/website](https://leonardodg.github.io/website)
+
 Website Link: [https://leodg.dev](https://leodg.dev)
