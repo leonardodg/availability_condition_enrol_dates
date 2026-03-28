@@ -304,7 +304,7 @@ class condition extends \core_availability\condition {
         $accessstring='';
         if ($checktime) {
             $comparisontime = $this->calculate_time($checktime, $this->timenumber, $this->timeperiod, $this->direction);
-            $accessstring = 'Access is after <b>' . userdate($comparisontime, '', 'core_langconfig').'</b>';
+            $accessstring = get_string('access', 'availability_enrol_dates').' <b> ' . userdate($comparisontime, '', 'core_langconfig').'</b>';
         }
 
         $coursecontext = \context_course::instance($course->id);
