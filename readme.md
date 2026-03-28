@@ -117,6 +117,18 @@ php admin/cli/purge_caches.php
 npx grunt amd
 php admin/cli/purge_caches.php
 ```
+
+
+- BUILD JS - EXTRA:
+```
+npx eslint availability/condition/enrol_dates/
+npx jshint --config .jshintrc availability/condition/enrol_dates/
+npx grunt yui --path=availability/condition/enrol_dates 2>&1
+npx grunt amd
+npx grunt amd --force
+```
+
+
 ## 🛠 Project Structure
 
 ```

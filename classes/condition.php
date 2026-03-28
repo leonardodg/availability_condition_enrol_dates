@@ -16,6 +16,9 @@
 
 namespace availability_enrol_dates;
 
+use core_analytics\course;
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -132,29 +135,23 @@ class condition extends \core_availability\condition {
 /**
      * Check if user meets condition.
      *
-     * @param int $userid User ID
      * @param bool $not Set true if we are inverting the condition
-     * @param bool $ajax Set true if we are in AJAX context
-     * @param stdClass $course Course object
+     * @param \core_availability\info $info Item we're checking
+     * @param bool $grabthelot Performance hint: if true, caches information
+     *   required for all course-modules, to make the front page and similar
+     *   pages work more quickly (works only for current user)
+     * @param int $userid User ID to check availability for
      * @return bool Whether user meets condition
      */
-    public function is_available($userid, $not = false, $ajax = false, $course = null) {
-        global $DB, $USER;
-
+    public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         // Get the user enrolment information
-
-        $enrol = $DB->get_record('enrol', array('courseid' => $course, 'enrol' => 'manual'), '*', MUST_EXIST);
-        $enrolments = $DB->get_records('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid), '', 'id, timestart, timeend');
-
-        if (empty($enrolments)) {
-            return false;
-        }
+        $timedata = $this->get_info_time($info, $userid);
 
         // Get the first enrolment (assuming single enrolment)
-        $enrolment = reset($enrolments);
+        $enrolment = $timedata['enrolment'];
 
         // Get course information
-        $courseinfo = $DB->get_record('course', array('id' => $course), 'timestart, timeend', MUST_EXIST);
+        $courseinfo = $timedata['course'];
 
         // Calculate the check time based on the selected time value
         $checktime = 0;
@@ -173,20 +170,14 @@ class condition extends \core_availability\condition {
                 break;
         }
 
-        // Calculate the comparison time
-        $comparisontime = $this->calculate_time($checktime, $this->timenumber, $this->timeperiod, $this->direction);
-
-        // Check if current time is within the condition
-        $currenttime = time();
-
-        $available = false;
-        if ($this->direction === self::DIRECTION_BEFORE) {
-            // Allow access before the calculated time
-            $available = $currenttime <= $comparisontime;
-        } else {
-            // Allow access after the calculated time
-            $available = $currenttime >= $comparisontime;
+        // If no check time is set, the condition is not applicable
+        if ($checktime == 0) {
+            return true;
         }
+
+        $comparisontime = $this->calculate_time($checktime, $this->timenumber, $this->timeperiod, $this->direction);
+        $currenttime = time();
+        $available = ($currenttime >= $comparisontime);
 
         return $not ? !$available : $available;
     }
@@ -202,10 +193,14 @@ class condition extends \core_availability\condition {
      */
     private function calculate_time($base, $number, $period, $direction) {
         $multiplier = $direction === self::DIRECTION_BEFORE ? -1 : 1;
+        $signal = $direction === self::DIRECTION_BEFORE ? '-' : '+';
+        $customDate = new \DateTimeImmutable('@' . $base);
 
         switch ($period) {
             case self::PERIOD_HOURS:
-                return $base + ($multiplier * $number * 3600);
+                $modify = $signal . $number . ' hour';
+                $resultDate = $customDate->modify($modify);
+                return $resultDate->getTimestamp();
             case self::PERIOD_DAYS:
                 return $base + ($multiplier * $number * 86400);
             case self::PERIOD_MONTHS:
@@ -239,50 +234,86 @@ class condition extends \core_availability\condition {
      * Get information about what this condition is.
      *
      * @param bool $not Set true if we are inverting the condition
-     * @param \stdClass $course Course object
-     * @param bool $urlshow Whether to include links in the description
-     * @return array Information about condition
+     * @param \core_availability\info $info Item we're checking
+     * @return string Information about condition
      */
-    public function get_description($not = false, $course = null, $urlshow = true) {
+    public function get_description($full, $not, \core_availability\info $info) {
+        global $USER;
+
+        $userid = $USER->id;
         $timevalue = $this->timevaluecheck;
         $number = $this->timenumber;
         $period = $this->timeperiod;
 
-        $direction = $this->direction === 'before' ? get_string('before', 'availability_enrol_dates') : get_string('after', 'availability_enrol_dates');
+        $direction = ($this->direction === self::DIRECTION_BEFORE) ? get_string('before', 'availability_enrol_dates') : get_string('after', 'availability_enrol_dates');
 
         // Map the time value check to readable string
         $timevaluestring = '';
         switch ($timevalue) {
-            case 'coursetimestart':
+            case self::TIME_COURSE_START:
                 $timevaluestring = get_string('coursetimestart', 'availability_enrol_dates');
                 break;
-            case 'coursetimeend':
+            case self::TIME_COURSE_END:
                 $timevaluestring = get_string('coursetimeend', 'availability_enrol_dates');
                 break;
-            case 'enroltimestart':
+            case self::TIME_ENROL_START:
                 $timevaluestring = get_string('enroltimestart', 'availability_enrol_dates');
                 break;
-            case 'enroltimeend':
+            case self::TIME_ENROL_END:
                 $timevaluestring = get_string('enroltimeend', 'availability_enrol_dates');
                 break;
         }
 
+        $timevaluestring = strtoupper($timevaluestring);
+
         // Map the period to readable string
         $periodstring = '';
         switch ($period) {
-            case 'hours':
+            case self::PERIOD_HOURS:
                 $periodstring = get_string('hours', 'availability_enrol_dates');
                 break;
-            case 'days':
+            case self::PERIOD_DAYS:
                 $periodstring = get_string('days', 'availability_enrol_dates');
                 break;
-            case 'months':
+            case self::PERIOD_MONTHS:
                 $periodstring = get_string('months', 'availability_enrol_dates');
                 break;
         }
 
-        // Create a more descriptive string
-        $description = 'Access is ' . $direction . ' ' . $timevaluestring . ' ' . $number . ' ' . $periodstring;
+        $course = $info->get_course();
+        $timedata = $this->get_info_time($info, $userid);
+        $enrolment = $timedata['enrolment'];
+        $courseinfo = $timedata['course'];
+        $checktime = 0;
+        switch ($this->timevaluecheck) {
+            case self::TIME_COURSE_START:
+                $checktime = $courseinfo->timestart;
+                break;
+            case self::TIME_COURSE_END:
+                $checktime = $courseinfo->timeend;
+                break;
+            case self::TIME_ENROL_START:
+                $checktime = $enrolment->timestart;
+                break;
+            case self::TIME_ENROL_END:
+                $checktime = $enrolment->timeend;
+                break;
+        }
+
+        // If no check time is set, the condition is not applicable
+        $accessstring='';
+        if ($checktime) {
+            $comparisontime = $this->calculate_time($checktime, $this->timenumber, $this->timeperiod, $this->direction);
+            $accessstring = 'Access is after <b>' . userdate($comparisontime, '', 'core_langconfig').'</b>';
+        }
+
+        $coursecontext = \context_course::instance($course->id);
+        $editing = !empty($USER->editing) && has_capability('moodle/course:manageactivities', $coursecontext);
+        if ($editing) {
+            $description = $accessstring . ' <br/> (Debug -Config) >> Direction: ' . $direction . ' Time: <b>' . $timevaluestring . '</b> Period: ' . $number . ' ' . $periodstring;
+        }else {
+            $description = $accessstring;
+        }
 
         return $description;
     }
@@ -330,5 +361,43 @@ class condition extends \core_availability\condition {
      */
     protected function get_debug_string() {
         return "Enrol dates condition: {$this->direction} {$this->timenumber} {$this->timeperiod} from {$this->timevaluecheck}";
+    }
+
+    /**
+     * Get a list of all available time periods.
+     *
+     * @param \core_availability\info $info Item we're checking
+     * @param int $userid User ID to check availability for
+     *
+     * @return array Array of time periods
+     */
+    private function get_info_time(\core_availability\info $info, $userid = null) {
+        global $DB, $USER;
+
+        // Get the user enrolment information
+        $course = $info->get_course();
+        $enrol = $DB->get_records('enrol', array('courseid' => $course->id), 'id');
+        $enrol_ids =  array_keys($enrol);
+        // Prefix 'en' is optional, but helpe avoid collisions name of paraments
+        list($insql, $inparams) = $DB->get_in_or_equal($enrol_ids, SQL_PARAMS_NAMED, 'en');
+
+        $inparams['userid'] = $userid ?: $USER->id;
+        $sql = "SELECT id, timestart, timeend FROM {user_enrolments} WHERE enrolid $insql AND userid = :userid";
+        $enrolments = $DB->get_records_sql($sql, $inparams);
+
+        if (empty($enrolments)) {
+            $enrolment = new stdClass();
+            $enrolment->id = 0;
+            $enrolment->timestart = 0;
+            $enrolment->timeend = 0;
+        }else if(count($enrolments) >= 1){
+            // check if need to FIX multiple enrolments, for now just get the first one
+            $enrolment = reset($enrolments);
+        }
+
+        // Get course information
+        $courseinfo = $DB->get_record('course', array('id' => $course->id), 'startdate as timestart, enddate as timeend', MUST_EXIST);
+
+        return array('enrolment' => $enrolment, 'course' => $courseinfo);
     }
 }
