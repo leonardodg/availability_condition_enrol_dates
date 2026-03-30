@@ -21,8 +21,9 @@ jobs:
           extensions: mbstring, libxml, mysqli, zip, gd, intl
 
       - name: Install Moodle CI Tools
+        env:
+          COMPOSER_NO_AUDIT: 1
         run: |
-          composer global config audit.ignore-advisories true
           composer global require moodlehq/moodle-plugin-ci
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
