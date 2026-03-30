@@ -29,7 +29,7 @@ jobs:
           
           # 2. Instalar as dependências dentro da pasta do tool
           # Usamos --no-dev para ser mais rápido e ignorar conflitos inúteis
-          composer install --no-dev --no-interaction --no-audit
+          composer install --no-dev --no-interaction
           
           # 3. Tornar o binário executável e adicionar ao PATH do GitHub
           chmod +x bin/moodle-plugin-ci
