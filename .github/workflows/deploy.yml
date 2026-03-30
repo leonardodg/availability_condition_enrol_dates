@@ -21,13 +21,13 @@ jobs:
           extensions: ctype, mbstring, libxml, mysqli, zip, gd, intl, soap, xmlrpc, curl, dom, iconv, json, xml, bcmath
 
       - name: Install Moodle CI Tools
+        run: |
+          composer global config repositories.moodle-plugins composer https://download.moodle.org/pacakges.json
+          composer global config audit.block-insecure false || true
+          composer global require moodlehq/moodle-plugin-ci:* --no-audit --no-security-blocking
+          echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
         env:
           COMPOSER_NO_AUDIT: 1
-        run: |
-          composer global config repositories.moodle-plugins composer https://download.moodle.org/packages.json
-          composer global config audit.block-insecure false || true
-          composer global require moodlehq/moodle-plugin-ci:*
-          echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
       - name: Initialize Moodle Environment
         run: |
