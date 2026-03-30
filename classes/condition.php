@@ -19,8 +19,6 @@ namespace availability_enrol_dates;
 use core_analytics\course;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class Availability Condition for enrol dates condition.
  * Restriction by Enrol Dates or Course Dates Condition
@@ -32,20 +30,25 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class condition extends \core_availability\condition {
-
-        // Direction options
+    /** @var string Constant for Direction options before */
     const DIRECTION_BEFORE = 'before';
+    /** @var string Constant for Direction options after */
     const DIRECTION_AFTER = 'after';
 
-    // Time check options (what date to compare against)
+    /** @var string option TIME_COURSE_START - Time check options (what date to compare against) */
     const TIME_COURSE_START = 'coursetimestart';
+    /** @var string option TIME_COURSE_END - Time check options (what date to compare against) */
     const TIME_COURSE_END = 'coursetimeend';
+    /** @var string option TIME_ENROL_START - Time check options (what date to compare against) */
     const TIME_ENROL_START = 'enroltimestart';
+    /** @var string option TIME_ENROL_END - Time check options (what date to compare against) */
     const TIME_ENROL_END = 'enroltimeend';
 
-    // Period options (how much time to add/subtract)
+    /** @var string Period options Hours(how much time to add/subtract) */
     const PERIOD_HOURS = 'hours';
+    /** @var string Period options Days(how much time to add/subtract) */
     const PERIOD_DAYS = 'days';
+    /** @var string Period options Months(how much time to add/subtract) */
     const PERIOD_MONTHS = 'months';
 
 
@@ -70,16 +73,24 @@ class condition extends \core_availability\condition {
     public function __construct($structure) {
 
         // Get direction.
-        if (isset($structure->direction) && in_array($structure->direction,
-                array(self::DIRECTION_BEFORE, self::DIRECTION_AFTER))) {
+        if (
+            isset($structure->direction) && in_array(
+                $structure->direction,
+                [self::DIRECTION_BEFORE, self::DIRECTION_AFTER]
+            )
+        ) {
             $this->direction = $structure->direction;
         } else {
             throw new \core\exception\coding_exception('Missing or invalid ->direction for date condition');
         }
 
         // Get time value check.
-        if (isset($structure->timevaluecheck) && in_array($structure->timevaluecheck,
-                array(self::TIME_COURSE_START, self::TIME_COURSE_END, self::TIME_ENROL_START, self::TIME_ENROL_END))) {
+        if (
+            isset($structure->timevaluecheck) && in_array(
+                $structure->timevaluecheck,
+                [self::TIME_COURSE_START, self::TIME_COURSE_END, self::TIME_ENROL_START, self::TIME_ENROL_END]
+            )
+        ) {
             $this->timevaluecheck = $structure->timevaluecheck;
         } else {
             throw new \core\exception\coding_exception('Missing or invalid ->timevaluecheck for date condition');
@@ -93,8 +104,12 @@ class condition extends \core_availability\condition {
         }
 
         // Get time period.
-        if (isset($structure->timeperiod) && in_array($structure->timeperiod,
-                array(self::PERIOD_HOURS, self::PERIOD_DAYS, self::PERIOD_MONTHS))) {
+        if (
+            isset($structure->timeperiod) && in_array(
+                $structure->timeperiod,
+                [self::PERIOD_HOURS, self::PERIOD_DAYS, self::PERIOD_MONTHS]
+            )
+        ) {
             $this->timeperiod = $structure->timeperiod;
         } else {
             throw new \core\exception\coding_exception('Missing or invalid ->timeperiod for date condition');
@@ -107,13 +122,13 @@ class condition extends \core_availability\condition {
      * @return \stdClass Structure object (ready to be made into JSON format)
      */
     public function save() {
-        return (object)array(
+        return (object)[
             'type' => 'enrol_dates',
             'direction' => $this->direction,
             'timevaluecheck' => $this->timevaluecheck,
             'timenumber' => $this->timenumber,
-            'timeperiod' => $this->timeperiod
-        );
+            'timeperiod' => $this->timeperiod,
+        ];
     }
 
     /**
@@ -129,10 +144,16 @@ class condition extends \core_availability\condition {
      * @return \stdClass Object representing condition
      */
     public static function get_json($direction, $timevaluecheck, $timenumber, $timeperiod) {
-        return (object)array('type' => 'enrol_dates', 'direction' => $direction, 'timevaluecheck' => $timevaluecheck, 'timenumber' => (int)$timenumber, 'timeperiod' => $timeperiod);
+        return (object)[
+                            'type' => 'enrol_dates',
+                            'direction' => $direction,
+                            'timevaluecheck' => $timevaluecheck,
+                            'timenumber' => (int)$timenumber,
+                            'timeperiod' => $timeperiod,
+                        ];
     }
 
-/**
+    /**
      * Check if user meets condition.
      *
      * @param bool $not Set true if we are inverting the condition
@@ -144,16 +165,16 @@ class condition extends \core_availability\condition {
      * @return bool Whether user meets condition
      */
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
-        // Get the user enrolment information
+        // Get the user enrolment information.
         $timedata = $this->get_info_time($info, $userid);
 
-        // Get the first enrolment (assuming single enrolment)
+        // Get the first enrolment (assuming single enrolment).
         $enrolment = $timedata['enrolment'];
 
-        // Get course information
+        // Get course information.
         $courseinfo = $timedata['course'];
 
-        // Calculate the check time based on the selected time value
+        // Calculate the check time based on the selected time value.
         $checktime = 0;
         switch ($this->timevaluecheck) {
             case self::TIME_COURSE_START:
@@ -170,7 +191,7 @@ class condition extends \core_availability\condition {
                 break;
         }
 
-        // If no check time is set, the condition is not applicable
+        // If no check time is set, the condition is not applicable.
         if ($checktime == 0) {
             return true;
         }
@@ -194,13 +215,13 @@ class condition extends \core_availability\condition {
     private function calculate_time($base, $number, $period, $direction) {
         $multiplier = $direction === self::DIRECTION_BEFORE ? -1 : 1;
         $signal = $direction === self::DIRECTION_BEFORE ? '-' : '+';
-        $customDate = new \DateTimeImmutable('@' . $base);
+        $customdate = new \DateTimeImmutable('@' . $base);
 
         switch ($period) {
             case self::PERIOD_HOURS:
                 $modify = $signal . $number . ' hour';
-                $resultDate = $customDate->modify($modify);
-                return $resultDate->getTimestamp();
+                $resultdate = $customdate->modify($modify);
+                return $resultdate->getTimestamp();
             case self::PERIOD_DAYS:
                 return $base + ($multiplier * $number * 86400);
             case self::PERIOD_MONTHS:
@@ -208,7 +229,7 @@ class condition extends \core_availability\condition {
                 $month = date('m', $base);
                 $day = date('d', $base);
 
-                // Adjust month and year
+                // Adjust month and year.
                 $month += $multiplier * $number;
                 while ($month < 1) {
                     $month += 12;
@@ -219,7 +240,7 @@ class condition extends \core_availability\condition {
                     $year++;
                 }
 
-                // Handle day overflow
+                // Handle day overflow.
                 $lastday = date('t', mktime(0, 0, 0, $month, 1, $year));
                 $day = min($day, $lastday);
 
@@ -245,9 +266,11 @@ class condition extends \core_availability\condition {
         $number = $this->timenumber;
         $period = $this->timeperiod;
 
-        $direction = ($this->direction === self::DIRECTION_BEFORE) ? get_string('before', 'availability_enrol_dates') : get_string('after', 'availability_enrol_dates');
+        $direction = ($this->direction === self::DIRECTION_BEFORE) ?
+                     get_string('before', 'availability_enrol_dates') :
+                     get_string('after', 'availability_enrol_dates');
 
-        // Map the time value check to readable string
+        // Map the time value check to readable string.
         $timevaluestring = '';
         switch ($timevalue) {
             case self::TIME_COURSE_START:
@@ -266,7 +289,7 @@ class condition extends \core_availability\condition {
 
         $timevaluestring = strtoupper($timevaluestring);
 
-        // Map the period to readable string
+        // Map the period to readable string.
         $periodstring = '';
         switch ($period) {
             case self::PERIOD_HOURS:
@@ -300,18 +323,20 @@ class condition extends \core_availability\condition {
                 break;
         }
 
-        // If no check time is set, the condition is not applicable
-        $accessstring='';
+        // If no check time is set, the condition is not applicable.
+        $accessstring = '';
         if ($checktime) {
             $comparisontime = $this->calculate_time($checktime, $this->timenumber, $this->timeperiod, $this->direction);
-            $accessstring = get_string('access', 'availability_enrol_dates').' <b> ' . userdate($comparisontime, '', 'core_langconfig').'</b>';
+            $accessstring = get_string('access', 'availability_enrol_dates') . ' <b> ' .
+                            userdate($comparisontime, '', 'core_langconfig') . '</b>';
         }
 
         $coursecontext = \context_course::instance($course->id);
         $editing = !empty($USER->editing) && has_capability('moodle/course:manageactivities', $coursecontext);
         if ($editing) {
-            $description = $accessstring . ' <br/> (Debug -Config) >> Direction: ' . $direction . ' Time: <b>' . $timevaluestring . '</b> Period: ' . $number . ' ' . $periodstring;
-        }else {
+            $description = $accessstring . ' <br/> (Debug -Config) >> Direction: ' . $direction .
+            ' Time: <b>' . $timevaluestring . '</b> Period: ' . $number . ' ' . $periodstring;
+        } else {
             $description = $accessstring;
         }
 
@@ -324,7 +349,7 @@ class condition extends \core_availability\condition {
      * @return array List of required fields
      */
     public function get_required_fields() {
-        return array('direction', 'timevaluecheck', 'timenumber', 'timeperiod');
+        return ['direction', 'timevaluecheck', 'timenumber', 'timeperiod'];
     }
 
     /**
@@ -333,12 +358,12 @@ class condition extends \core_availability\condition {
      * @return array List of time values
      */
     public static function get_time_value_options() {
-        return array(
+        return [
             'coursetimestart' => get_string('coursetimestart', 'availability_enrol_dates'),
             'coursetimeend' => get_string('coursetimeend', 'availability_enrol_dates'),
             'enroltimestart' => get_string('enroltimestart', 'availability_enrol_dates'),
-            'enroltimeend' => get_string('enroltimeend', 'availability_enrol_dates')
-        );
+            'enroltimeend' => get_string('enroltimeend', 'availability_enrol_dates'),
+        ];
     }
 
     /**
@@ -347,11 +372,11 @@ class condition extends \core_availability\condition {
      * @return array List of time periods
      */
     public static function get_time_period_options() {
-        return array(
+        return [
             'hours' => get_string('hours', 'availability_enrol_dates'),
             'days' => get_string('days', 'availability_enrol_dates'),
-            'months' => get_string('months', 'availability_enrol_dates')
-        );
+            'months' => get_string('months', 'availability_enrol_dates'),
+        ];
     }
 
     /**
@@ -374,12 +399,12 @@ class condition extends \core_availability\condition {
     private function get_info_time(\core_availability\info $info, $userid = null) {
         global $DB, $USER;
 
-        // Get the user enrolment information
+        // Get the user enrolment information.
         $course = $info->get_course();
-        $enrol = $DB->get_records('enrol', array('courseid' => $course->id), 'id');
-        $enrol_ids =  array_keys($enrol);
-        // Prefix 'en' is optional, but helpe avoid collisions name of paraments
-        list($insql, $inparams) = $DB->get_in_or_equal($enrol_ids, SQL_PARAMS_NAMED, 'en');
+        $enrol = $DB->get_records('enrol', ['courseid' => $course->id], 'id');
+        $enrolids = array_keys($enrol);
+        // Prefix 'en' is optional, but helpe avoid collisions name of paraments.
+        [$insql, $inparams] = $DB->get_in_or_equal($enrolids, SQL_PARAMS_NAMED, 'en');
 
         $inparams['userid'] = $userid ?: $USER->id;
         $sql = "SELECT id, timestart, timeend FROM {user_enrolments} WHERE enrolid $insql AND userid = :userid";
@@ -390,14 +415,14 @@ class condition extends \core_availability\condition {
             $enrolment->id = 0;
             $enrolment->timestart = 0;
             $enrolment->timeend = 0;
-        }else if(count($enrolments) >= 1){
-            // check if need to FIX multiple enrolments, for now just get the first one
+        } else if (count($enrolments) >= 1) {
+            // Check if need to FIX multiple enrolments, for now just get the first one.
             $enrolment = reset($enrolments);
         }
 
-        // Get course information
-        $courseinfo = $DB->get_record('course', array('id' => $course->id), 'startdate as timestart, enddate as timeend', MUST_EXIST);
+        // Get course information.
+        $courseinfo = $DB->get_record('course', ['id' => $course->id], 'startdate as timestart, enddate as timeend', MUST_EXIST);
 
-        return array('enrolment' => $enrolment, 'course' => $courseinfo);
+        return ['enrolment' => $enrolment, 'course' => $courseinfo];
     }
 }

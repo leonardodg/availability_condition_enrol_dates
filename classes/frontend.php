@@ -24,14 +24,13 @@ namespace availability_enrol_dates;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class frontend extends \core_availability\frontend {
-
     /**
      * Get the JavaScript strings to load for this plugin.
      *
      * @return array Array of strings
      */
     public function get_javascript_strings() {
-        return array(
+        return [
             'title',
             'before',
             'after',
@@ -48,10 +47,15 @@ class frontend extends \core_availability\frontend {
             'error_invalid_timenumber',
             'error_missing_direction',
             'error_missing_timevaluecheck',
-            'error_missing_timeperiod'
-        );
+            'error_missing_timeperiod',
+        ];
     }
 
+    /**
+     * Determines whether the plugin can be added to an item.
+     *
+     * @return bool True if it can be added
+     */
     protected function allow_add($course, ?\cm_info $cm = null, ?\section_info $section = null) {
         return true;
     }
