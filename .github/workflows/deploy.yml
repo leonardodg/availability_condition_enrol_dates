@@ -2,8 +2,8 @@ name: Moodle Plugin CI & Release
 
 on:
   push:
-    branches:
-      - develop
+    tags:
+      - 'v*'
 
 jobs:
   build_and_release:
