@@ -22,8 +22,8 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class for enrol dates condition.
- * Restriction by Enrol Dates (timestart/timeend) or Course Dates (timestart/timeend) condition
+ * Class Availability Condition for enrol dates condition.
+ * Restriction by Enrol Dates or Course Dates Condition
  *
  * Documentation: {@link https://moodledev.io/docs/apis/plugintypes/availability}
  *
