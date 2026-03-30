@@ -22,9 +22,17 @@ jobs:
 
       - name: Install Moodle CI Tools
         run: |
-          composer global config repositories.moodle-plugins composer https://download.moodle.org/pacakges.json
+          # 1. Clean up any previous failed attempts
+          composer global config --unset repositories.moodle-plugins || true
+          
+          # 2. Tell composer NOT to block for security issues globally
           composer global config audit.block-insecure false || true
-          composer global require moodlehq/moodle-plugin-ci:* --no-audit --no-security-blocking
+          
+          # 3. Install the tool using flags to bypass the security check
+          # Note: We use "moodlehq/moodle-plugin-ci:^4.5" to force a modern, compatible version
+          composer global require "moodlehq/moodle-plugin-ci:^4.5" --no-audit --no-security-blocking
+          
+          # 4. Export to Path
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
         env:
           COMPOSER_NO_AUDIT: 1
