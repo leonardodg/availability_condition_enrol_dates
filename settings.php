@@ -25,13 +25,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Add your settings here
-    // Example:
-    // $settings->add(new admin_setting_configtext(
-    //     'availability_condition_mycondition/defaultvalue',
-    //     get_string('setting', 'availability_condition_mycondition'),
-    //     get_string('settingdesc', 'availability_condition_mycondition'),
-    //     '',
-    //     PARAM_TEXT
-    // ));
+    // Add your settings here.
+    return;
 }
