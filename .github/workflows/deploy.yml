@@ -8,6 +8,17 @@ on:
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: moodle
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,8 +53,10 @@ jobs:
           COMPOSER_NO_AUDIT: 1
 
       - name: Initialize Moodle Environment
+        env:
+          DB: mysqli
         run: |
-          moodle-plugin-ci install --plugin ./enrol_dates --branch MOODLE_405_STABLE
+          moodle-plugin-ci install --plugin ./enrol_dates --branch MOODLE_405_STABLE --db-type mysqli --db-host 127.0.0.1 --db-user root --db-pass root --db-name moodle
 
       - name: Build JS
         run: |
