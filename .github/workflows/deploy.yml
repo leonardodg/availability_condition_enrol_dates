@@ -69,9 +69,9 @@ jobs:
           rm -rf ./enrol_dates/.git
           moodle-plugin-ci grunt
 
-      - name: Validate Code Standards
+      - name: PHP CodeSniffer (CodeChecker)
         run: |
-            moodle-plugin-ci codechecker availability/condition/enrol_dates
+            moodle-plugin-ci phpcs ./enrol_dates
 
 
       - name: Create Tagged ZIP Bundle
