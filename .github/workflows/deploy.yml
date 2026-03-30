@@ -66,7 +66,7 @@ jobs:
 
       - name: Build JS
         run: |
-          moodle-plugin-ci grunt --extra="--path=availability/condition/enrol_dates"
+          moodle-plugin-ci grunt --plugin availability/condition/enrol_dates
 
       - name: Validate Code Standards
         run: |
