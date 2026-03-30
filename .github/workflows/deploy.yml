@@ -23,22 +23,21 @@ jobs:
 
       - name: Install Moodle CI Tools
         run: |
-          # 1. Configura o Composer para aceitar pacotes instáveis e ignorar avisos
-          composer global config minimum-stability dev
-          composer global config prefer-stable true
+          # 1. Clonar o repositório diretamente (evita erro de URL do composer)
+          git clone https://github.com/moodlehq/moodle-plugin-ci.git $HOME/moodle-plugin-ci
+          cd $HOME/moodle-plugin-ci
           
-          # 2. Adiciona o repositório do Moodle CI direto do GitHub (Pula o 404 do packages.json)
-          composer global config repositories.moodle-plugin-ci vcs https://github.com/moodlehq/moodle-plugin-ci
+          # 2. Instalar as dependências dentro da pasta do tool
+          # Usamos --no-dev para ser mais rápido e ignorar conflitos inúteis
+          composer install --no-dev --no-interaction --no-audit
           
-          # 3. Adiciona o repositório do sub-pacote local_ci que o Moodle escondeu
-          composer global config repositories.moodle-local-ci vcs https://github.com/moodlehq/moodle-local_ci
+          # 3. Tornar o binário executável e adicionar ao PATH do GitHub
+          chmod +x bin/moodle-plugin-ci
+          echo "$HOME/moodle-plugin-ci/bin" >> $GITHUB_PATH
           
-          # 4. Instala forçando o bypass de segurança e auditoria
-          # Usamos a branch master para garantir compatibilidade com Moodle 4.5
-          composer global require moodlehq/moodle-plugin-ci:dev-master --no-audit --no-security-blocking --no-interaction
-          
-          # 5. Exporta para o PATH
-          echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
+          # 4. Verificar se funcionou
+          export PATH="$HOME/moodle-plugin-ci/bin:$PATH"
+          moodle-plugin-ci --version
         env:
           COMPOSER_NO_AUDIT: 1
 
