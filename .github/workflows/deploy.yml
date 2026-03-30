@@ -52,6 +52,13 @@ jobs:
         env:
           COMPOSER_NO_AUDIT: 1
 
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h"127.0.0.1" -P"3306" -uroot -proot --silent; do
+            echo "Aguardando MySQL..."
+            sleep 2
+          done
+
       - name: Initialize Moodle Environment
         env:
           DB: mysqli
