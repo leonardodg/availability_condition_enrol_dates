@@ -19,23 +19,29 @@ jobs:
         with:
           php-version: '8.1'
           extensions: ctype, mbstring, libxml, mysqli, zip, gd, intl, soap, xmlrpc, curl, dom, iconv, json, xml, bcmath
+          ini-values: memory_limit=-1 # Previne erros de memória no Composer
 
       - name: Install Moodle CI Tools
         run: |
-          # 1. Configura o repositório oficial correto do Moodle (Sem erros de digitação agora)
+          # 1. Limpa o cache para evitar erros de sessões anteriores
+          composer global clear-cache
+          
+          # 2. Adiciona o repositório oficial do Moodle (Essencial para achar o moodle-local_ci)
           composer global config repositories.moodle-plugins composer https://download.moodle.org/packages.json
           
-          # 2. Permite que o Composer instale versões estáveis e de desenvolvimento (necessário para alguns sub-pacotes)
+          # 3. Define a estabilidade (Muitos pacotes do Moodle CI 4.5 ainda são marcados como dev/alpha)
           composer global config minimum-stability dev
           composer global config prefer-stable true
           
-          # 3. Desativa o bloqueio por falha de segurança (que estava travando o symfony/process)
+          # 4. Desativa TODAS as travas de segurança do Composer (O pulo do gato)
           composer global config audit.block-insecure false || true
+          composer global config audit.ignore-advisories true || true
           
-          # 4. Instala a ferramenta ignorando os alertas de segurança que o GitHub Actions força
-          composer global require moodlehq/moodle-plugin-ci:^4.5 --no-audit --no-security-blocking
+          # 5. Instala a versão 4.5.x explicitamente com flags de força
+          # O uso de --no-audit e --no-security-blocking ignora os erros de pacotes antigos
+          composer global require "moodlehq/moodle-plugin-ci:^4.5" --no-interaction --no-audit --no-security-blocking
           
-          # 5. Adiciona ao PATH do sistema
+          # 6. Exporta o binário para o PATH do GitHub Actions
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
         env:
           COMPOSER_NO_AUDIT: 1
