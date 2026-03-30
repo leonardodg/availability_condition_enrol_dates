@@ -71,7 +71,7 @@ jobs:
 
       - name: Validate Code Standards
         run: |
-            moodle-plugin-ci codechecker availability/condition/enrol_dates
+            moodle-plugin-ci codechecker
 
 
       - name: Create Tagged ZIP Bundle
