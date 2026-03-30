@@ -43,7 +43,7 @@ jobs:
 
       - name: Initialize Moodle Environment
         run: |
-          moodle-plugin-ci install --plugin ./enrol_dates --moodle-branch MOODLE_405_STABLE
+          moodle-plugin-ci install --plugin ./enrol_dates --branch MOODLE_405_STABLE
 
       - name: Build JS
         run: |
