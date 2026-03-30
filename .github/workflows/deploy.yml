@@ -22,6 +22,7 @@ jobs:
 
       - name: Install Moodle CI Tools
         run: |
+          composer global config audit.ignore-advisories true
           composer global require moodlehq/moodle-plugin-ci
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
