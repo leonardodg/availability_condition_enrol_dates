@@ -23,7 +23,13 @@ Object: Create Availability Conditions allow teachers to restrict an activity or
 - Select Time Period = ["hours, "days", "months"]
 
 # 📸 Demonstração
-[images]
+
+- Restriction View
+![Restriction View][image1]
+- Configuração do Plugin
+![Configuração do Plugin][image2]
+- Restriction Admin View
+![Restriction Admin View][image3]
 
 # ✨ Features
 - Time Direction: Restrict before or after a specific date.
@@ -31,6 +37,22 @@ Object: Create Availability Conditions allow teachers to restrict an activity or
     * Course Start/End Date.
     * Student Enrollment Start/End Date.
 - Flexible Periods: Configure in Hours, Days, or Months.
+
+
+# 🛠 Instalação
+1. Via Git (Recomendado):
+
+> Bash
+```
+cd /caminho/do/seu/moodle/availability/condition
+git clone https://github.com/leonardodg/availability_condition_enrol_dates.git enrol_dates
+```
+
+2. Via ZIP:
+    - Baixe o código, extraia na pasta availability/condition/enrol_dates.
+
+3. Finalização:
+    - Acesse o painel de Administração do Site > Notificações para rodar o upgrade do banco de dados.
 
 ## Rules and Conditions:
 
@@ -179,3 +201,8 @@ Website Link: [leodg.dev][6]
 [4]: https://www.linkedin.com/in/le0dg
 [5]: https://github.com/leonardodg/availability_condition_enrol_dates.git
 [6]: https://leodg.dev
+[image1]: https://raw.githubusercontent.com/leonardodg/availability_condition_enrol_dates/assets/images/restriction_view_studant.png
+
+[image2]: https://raw.githubusercontent.com/leonardodg/availability_condition_enrol_dates/assets/images/restriction_setup_admin.png
+
+[image3]: https://raw.githubusercontent.com/leonardodg/availability_condition_enrol_dates/assets/images/restriction_access_view_admin_debug.png

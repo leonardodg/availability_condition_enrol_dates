@@ -18,7 +18,7 @@
  * TODO describe file settings
  *
  * @package    availability_enrol_dates
- * @copyright  2026 Leodg
+ * @copyright  2026 LeoDG <callme@leodg.dev>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
