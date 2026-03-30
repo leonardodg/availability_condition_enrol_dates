@@ -2,8 +2,8 @@ name: Moodle Plugin CI & Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - develop
 
 jobs:
   build_and_release:
@@ -18,13 +18,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, libxml, mysqli, zip, gd, intl
+          extensions: ctype, mbstring, libxml, mysqli, zip, gd, intl, soap, xmlrpc, curl, dom, iconv, json, xml, bcmath
 
       - name: Install Moodle CI Tools
         env:
           COMPOSER_NO_AUDIT: 1
         run: |
-          composer global require moodlehq/moodle-plugin-ci
+          composer global config repositories.moodle-plugins composer https://download.moodle.org/packages.json
+          composer global config audit.block-insecure false || true
+          composer global require moodlehq/moodle-plugin-ci:*
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
       - name: Initialize Moodle Environment
