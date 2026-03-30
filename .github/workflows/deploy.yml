@@ -8,6 +8,16 @@ on:
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,26 +28,50 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, libxml, mysqli, zip, gd, intl
+          extensions: ctype, mbstring, libxml, mysqli, zip, gd, intl, soap, xmlrpc, curl, dom, iconv, json, xml, bcmath
+          ini-values: memory_limit=-1 # Previne erros de memória no Composer
 
       - name: Install Moodle CI Tools
+        run: |
+          # 1. Clonar o repositório diretamente (evita erro de URL do composer)
+          git clone https://github.com/moodlehq/moodle-plugin-ci.git $HOME/moodle-plugin-ci
+          cd $HOME/moodle-plugin-ci
+          
+          # 2. Instalar as dependências dentro da pasta do tool
+          # Usamos --no-dev para ser mais rápido e ignorar conflitos inúteis
+          composer install --no-dev --no-interaction
+          
+          # 3. Tornar o binário executável e adicionar ao PATH do GitHub
+          chmod +x bin/moodle-plugin-ci
+          echo "$HOME/moodle-plugin-ci/bin" >> $GITHUB_PATH
+          
+          # 4. Verificar se funcionou
+          export PATH="$HOME/moodle-plugin-ci/bin:$PATH"
+          moodle-plugin-ci --version
         env:
           COMPOSER_NO_AUDIT: 1
+
+      - name: Wait for MySQL to be ready
         run: |
-          composer global require moodlehq/moodle-plugin-ci
-          echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
+          until mysqladmin ping -h"127.0.0.1" -P"3306" -uroot -proot --silent; do
+            echo "Aguardando MySQL..."
+            sleep 2
+          done
 
       - name: Initialize Moodle Environment
+        env:
+          DB: mysqli
         run: |
-          moodle-plugin-ci install --plugin ./enrol_dates --moodle-branch MOODLE_405_STABLE
+          moodle-plugin-ci install --plugin ./enrol_dates --branch MOODLE_405_STABLE --db-type mysqli --db-host 127.0.0.1 --db-user root --db-pass root --db-name moodle
 
       - name: Build JS
         run: |
-          moodle-plugin-ci grunt --extra="--path=availability/condition/enrol_dates"
+          rm -rf ./enrol_dates/.git
+          moodle-plugin-ci grunt
 
-      - name: Validate Code Standards
+      - name: PHP CodeSniffer (CodeChecker)
         run: |
-            moodle-plugin-ci codechecker availability/condition/enrol_dates
+            moodle-plugin-ci phpcs ./enrol_dates
 
 
       - name: Create Tagged ZIP Bundle
